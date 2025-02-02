@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:fateen/models/student.dart'; // استيراد كلاس الطالب
+import 'login_screen.dart'; // استيراد صفحة تسجيل الدخول
+
+// قائمة لتخزين المستخدمين المسجلين
+List<Student> usersList = [];
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -8,6 +13,56 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  final Student student = Student(); // إنشاء كائن من كلاس Student
+  final TextEditingController userIdController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController majorController = TextEditingController();
+
+  void registerUser() {
+    // التحقق من إدخال جميع الحقول
+    if (userIdController.text.isNotEmpty &&
+        nameController.text.isNotEmpty &&
+        emailController.text.isNotEmpty &&
+        passwordController.text.isNotEmpty &&
+        majorController.text.isNotEmpty) {
+      // تخزين بيانات الطالب في الكائن
+      student.addUserId(userIdController.text);
+      student.addName(nameController.text);
+      student.addEmail(emailController.text);
+      student.addPassword(passwordController.text);
+      student.addMajor(majorController.text);
+
+      // إضافة الطالب إلى قائمة المستخدمين
+      usersList.add(student);
+
+      // إظهار رسالة نجاح
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('تم إنشاء الحساب بنجاح!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // الانتقال إلى صفحة تسجيل الدخول
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const LoginScreen(),
+        ),
+      );
+    } else {
+      // إظهار رسالة خطأ إذا كانت الحقول فارغة
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('يرجى ملء جميع الحقول'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,6 +96,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
               const SizedBox(height: 40),
 
+              // حقل رقم المستخدم
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 6,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  controller: userIdController,
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(vertical: 15),
+                    border: InputBorder.none,
+                    hintText: 'رقم المستخدم',
+                    prefixIcon: Icon(Icons.numbers, color: Colors.blue),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
               // حقل الاسم
               Container(
                 decoration: BoxDecoration(
@@ -54,12 +134,38 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ],
                 ),
-                child: const TextField(
-                  decoration: InputDecoration(
+                child: TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
                     contentPadding: EdgeInsets.symmetric(vertical: 15),
                     border: InputBorder.none,
                     hintText: 'الاسم الكامل',
                     prefixIcon: Icon(Icons.person, color: Colors.blue),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // حقل التخصص
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 6,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  controller: majorController,
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(vertical: 15),
+                    border: InputBorder.none,
+                    hintText: 'التخصص',
+                    prefixIcon: Icon(Icons.school, color: Colors.blue),
                   ),
                 ),
               ),
@@ -78,8 +184,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ],
                 ),
-                child: const TextField(
-                  decoration: InputDecoration(
+                child: TextField(
+                  controller: emailController,
+                  decoration: const InputDecoration(
                     contentPadding: EdgeInsets.symmetric(vertical: 15),
                     border: InputBorder.none,
                     hintText: 'البريد الإلكتروني',
@@ -102,9 +209,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ],
                 ),
-                child: const TextField(
+                child: TextField(
+                  controller: passwordController,
                   obscureText: true,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     contentPadding: EdgeInsets.symmetric(vertical: 15),
                     border: InputBorder.none,
                     hintText: 'كلمة المرور',
@@ -116,9 +224,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
               // زر إنشاء الحساب
               GestureDetector(
-                onTap: () {
-                  // يمكنك إضافة وظيفة إنشاء الحساب هنا
-                },
+                onTap: registerUser,
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   decoration: BoxDecoration(
@@ -156,7 +262,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      // الرجوع إلى شاشة تسجيل الدخول
                       Navigator.pop(context);
                     },
                     child: const Text(

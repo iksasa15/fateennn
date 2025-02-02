@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart'; // استيراد صفحة الريسيه (Home Screen)
-import 'signup_screen.dart';
+import 'home_screen.dart'; // استيراد صفحة الرئيسية
+import 'signup_screen.dart'; // استيراد صفحة التسجيل
+import 'package:fateen/models/student.dart'; // استيراد كلاس الطالب
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,6 +11,40 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  void loginUser() {
+    // التحقق من البريد الإلكتروني وكلمة المرور
+    final email = emailController.text;
+    final password = passwordController.text;
+
+    // البحث عن المستخدم في قائمة المستخدمين
+    final matchedUser = usersList.firstWhere(
+      (user) =>
+          user.email == email && user.password == password, // مطابقة البيانات
+      orElse: () => Student(), // إذا لم يتم العثور على المستخدم
+    );
+
+    if (matchedUser.email != null) {
+      // إذا تم العثور على المستخدم، الانتقال إلى الصفحة الرئيسية
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeScreen(userName: matchedUser.name ?? ''),
+        ),
+      );
+    } else {
+      // إذا لم يتم العثور على المستخدم، عرض رسالة خطأ
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('البريد الإلكتروني أو كلمة المرور غير صحيحة'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,8 +91,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ],
                 ),
-                child: const TextField(
-                  decoration: InputDecoration(
+                child: TextField(
+                  controller: emailController,
+                  decoration: const InputDecoration(
                     contentPadding: EdgeInsets.symmetric(vertical: 15),
                     border: InputBorder.none,
                     hintText: 'البريد الإلكتروني',
@@ -80,9 +116,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ],
                 ),
-                child: const TextField(
+                child: TextField(
+                  controller: passwordController,
                   obscureText: true,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     contentPadding: EdgeInsets.symmetric(vertical: 15),
                     border: InputBorder.none,
                     hintText: 'كلمة المرور',
@@ -94,15 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // زر تسجيل الدخول
               GestureDetector(
-                onTap: () {
-                  // الانتقال إلى الصفحة الرئيسية بعد تسجيل الدخول
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const HomeScreen(),
-                    ),
-                  );
-                },
+                onTap: loginUser,
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   decoration: BoxDecoration(
