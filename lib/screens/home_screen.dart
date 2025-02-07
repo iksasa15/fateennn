@@ -29,13 +29,13 @@ class HomeScreen extends StatelessWidget {
                 // الرجوع إلى صفحة تسجيل الدخول
                 Navigator.pop(context);
               },
-              child: const Text('تسجيل خروج'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 textStyle: const TextStyle(fontSize: 18),
               ),
+              child: const Text('تسجيل خروج'),
             ),
           ],
         ),
