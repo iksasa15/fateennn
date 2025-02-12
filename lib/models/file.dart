@@ -1,9 +1,11 @@
 class File {
-  final String id;
-  final String fileName;
-  final int fileSize;
-  final String fileType;
+  // الخصائص
+  String id;
+  String fileName;
+  int fileSize; // الحجم بالكيلوبايت (KB)
+  String fileType; // مثل "PDF" أو "DOCX"
 
+  // **المُنشئ**
   File({
     required this.id,
     required this.fileName,
@@ -11,21 +13,21 @@ class File {
     required this.fileType,
   });
 
-  // ✅ تحميل الملف (محاكاة عملية الرفع)
+  // **دالة رفع الملف**
   void upload() {
-    print("📤 يتم تحميل الملف: $fileName (${fileSize}KB) بنوع $fileType...");
+    print("📂 تم رفع الملف: $fileName ($fileType) بحجم $fileSize KB");
   }
 
-  // ✅ عرض تفاصيل الملف
+  // **دالة عرض تفاصيل الملف**
   void view() {
-    print("👀 عرض الملف:");
-    print("📂 الاسم: $fileName");
-    print("📏 الحجم: ${fileSize}KB");
-    print("📄 النوع: $fileType");
+    print("📄 تفاصيل الملف:");
+    print("- 📌 الاسم: $fileName");
+    print("- 💾 الحجم: $fileSize KB");
+    print("- 📑 النوع: $fileType");
   }
 
-  // ✅ حذف الملف
+  // **دالة حذف الملف**
   void deleteFile() {
-    print("🗑️ تم حذف الملف: $fileName");
+    print("🗑 تم حذف الملف: $fileName");
   }
 }

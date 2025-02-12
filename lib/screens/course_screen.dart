@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../models/course.dart';
-import '../models/task.dart';
-import '../models/reminder.dart';
+import 'package:intl/intl.dart';
 
 class CourseScreen extends StatefulWidget {
   @override
@@ -10,244 +8,180 @@ class CourseScreen extends StatefulWidget {
 }
 
 class _CourseScreenState extends State<CourseScreen> {
-  // تهيئة الكورس مباشرةً
-  Course course = Course(
-    id: 'CS101',
-    courseName: 'Introduction to Computer Science',
-    creditHours: 3,
-    lectureTime: DateTime(2024, 6, 10, 9, 0),
-    classroom: 'Room A1',
-  );
+  List<Course> courses = [
+    Course(
+      id: '1',
+      courseName: 'برمجة تطبيقات الموبايل',
+      creditHours: 3,
+      lectureTime: DateTime.now().add(Duration(days: 1, hours: 2)),
+      classroom: 'قاعة 101',
+    ),
+    Course(
+      id: '2',
+      courseName: 'تحليل وتصميم النظم',
+      creditHours: 3,
+      lectureTime: DateTime.now().add(Duration(days: 2, hours: 3)),
+      classroom: 'قاعة 202',
+    ),
+  ];
 
-  @override
-  void initState() {
-    super.initState();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController creditController = TextEditingController();
+  final TextEditingController classroomController = TextEditingController();
+  DateTime? selectedTime;
 
-    // إضافة بيانات تجريبية
-    course.createGrade('Ali', 85.5);
-    course.createGrade('Sara', 92.0);
-    course.createTask(Task(
-      id: 'T1',
-      name: 'Assignment 1',
-      description: 'Solve the exercises',
-      dueDate: DateTime(2024, 6, 15),
-    ));
-    course.createLectureReminder(Reminder(
-      id: 'R1',
-      title: 'Exam Reminder',
-      reminderTime: DateTime(2024, 6, 20, 14, 0),
-      message: 'Midterm exam is coming!',
-    ));
-  }
-
-  // 🔹 إضافة درجة جديدة
-  void _showAddGradeDialog() {
-    TextEditingController nameController = TextEditingController();
-    TextEditingController gradeController = TextEditingController();
+  /// ✅ فتح نافذة لإضافة أو تعديل المقرر
+  void _showCourseDialog({Course? course, int? index}) {
+    bool isEditing = course != null;
+    nameController.text = isEditing ? course.courseName : '';
+    creditController.text = isEditing ? course.creditHours.toString() : '';
+    classroomController.text = isEditing ? course.classroom : '';
+    selectedTime = isEditing ? course.lectureTime : null;
 
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("إضافة درجة جديدة"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
+      builder: (context) => AlertDialog(
+        title: Text(isEditing ? 'تعديل المقرر' : 'إضافة مقرر جديد'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
                 controller: nameController,
-                decoration: InputDecoration(labelText: "اسم الطالب"),
-              ),
-              TextField(
-                controller: gradeController,
-                decoration: InputDecoration(labelText: "الدرجة"),
+                decoration: const InputDecoration(labelText: "اسم المقرر")),
+            TextField(
+                controller: creditController,
                 keyboardType: TextInputType.number,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text("إلغاء"),
+                decoration: const InputDecoration(labelText: "عدد الساعات")),
+            TextField(
+                controller: classroomController,
+                decoration: const InputDecoration(labelText: "قاعة المحاضرة")),
+            const SizedBox(height: 10),
+            ListTile(
+              title: Text(selectedTime == null
+                  ? "حدد وقت المحاضرة"
+                  : "وقت المحاضرة: ${DateFormat.yMd().add_jm().format(selectedTime!)}"),
+              trailing: const Icon(Icons.access_time),
+              onTap: () async {
+                DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: selectedTime ?? DateTime.now(),
+                  firstDate: DateTime.now(),
+                  lastDate: DateTime(2100),
+                );
+                if (pickedDate != null) {
+                  TimeOfDay? pickedTime = await showTimePicker(
+                    context: context,
+                    initialTime:
+                        TimeOfDay.fromDateTime(selectedTime ?? DateTime.now()),
+                  );
+                  if (pickedTime != null) {
+                    setState(() {
+                      selectedTime = DateTime(
+                        pickedDate.year,
+                        pickedDate.month,
+                        pickedDate.day,
+                        pickedTime.hour,
+                        pickedTime.minute,
+                      );
+                    });
+                  }
+                }
+              },
             ),
-            ElevatedButton(
-              onPressed: () {
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("إلغاء")),
+          TextButton(
+            onPressed: () {
+              if (nameController.text.isNotEmpty &&
+                  creditController.text.isNotEmpty &&
+                  classroomController.text.isNotEmpty &&
+                  selectedTime != null) {
                 setState(() {
-                  String name = nameController.text;
-                  double grade = double.tryParse(gradeController.text) ?? 0.0;
-                  if (name.isNotEmpty) {
-                    course.createGrade(name, grade);
+                  if (isEditing) {
+                    courses[index!] = Course(
+                      id: course!.id,
+                      courseName: nameController.text,
+                      creditHours: int.tryParse(creditController.text) ?? 0,
+                      lectureTime: selectedTime!,
+                      classroom: classroomController.text,
+                    );
+                  } else {
+                    courses.add(Course(
+                      id: DateTime.now().millisecondsSinceEpoch.toString(),
+                      courseName: nameController.text,
+                      creditHours: int.tryParse(creditController.text) ?? 0,
+                      lectureTime: selectedTime!,
+                      classroom: classroomController.text,
+                    ));
                   }
                 });
                 Navigator.pop(context);
-              },
-              child: Text("إضافة"),
-            ),
-          ],
-        );
-      },
+              }
+            },
+            child: const Text("حفظ"),
+          ),
+        ],
+      ),
     );
+  }
+
+  void _deleteCourse(int index) {
+    setState(() {
+      courses.removeAt(index);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(course.courseName),
+        title: const Text('📚 إدارة المقررات'),
+        backgroundColor: Colors.blueAccent,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 📌 معلومات الكورس
-            _buildSectionTitle("معلومات الكورس"),
-            _buildDetail("ID", course.id),
-            _buildDetail("عدد الساعات", course.creditHours.toString()),
-            _buildDetail("وقت المحاضرة",
-                DateFormat('yyyy-MM-dd HH:mm').format(course.lectureTime)),
-            _buildDetail("القاعة", course.classroom),
-            SizedBox(height: 16),
-
-            // 📌 الدرجات
-            _buildSectionTitle("درجات الطلاب"),
-            ...course.grades.entries.map(
-                (entry) => _buildDetail(entry.key, entry.value.toString())),
-            SizedBox(height: 16),
-
-            // 📌 قائمة المهام
-            _buildSectionTitle("المهام"),
-            _buildListView(
-                course.tasks,
-                (task) => ListTile(
-                      title: Text(task.name),
-                      subtitle: Text(task.description),
-                      trailing:
-                          Text(DateFormat('yyyy-MM-dd').format(task.dueDate)),
-                      onTap: () => _modifyTaskDialog(task),
-                    )),
-            SizedBox(height: 16),
-
-            // 📌 التذكيرات
-            _buildSectionTitle("التذكيرات"),
-            _buildListView(
-                course.reminders,
-                (reminder) => ListTile(
-                      title: Text(reminder.title),
-                      subtitle: Text(reminder.message),
-                      trailing: Text(DateFormat('yyyy-MM-dd HH:mm')
-                          .format(reminder.reminderTime)),
-                      onTap: () => _modifyReminderDialog(reminder),
-                    )),
-          ],
-        ),
-      ),
+      body: courses.isEmpty
+          ? const Center(
+              child: Text(
+                'لا توجد مقررات متاحة 😢',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            )
+          : ListView.builder(
+              itemCount: courses.length,
+              itemBuilder: (context, index) {
+                final course = courses[index];
+                return Card(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  child: ListTile(
+                    title: Text(course.courseName,
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text(
+                        '🕒 ${DateFormat.yMd().add_jm().format(course.lectureTime)} | 🏫 ${course.classroom}'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () => _showCourseDialog(
+                                course: course, index: index)),
+                        IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _deleteCourse(index)),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showAddGradeDialog,
-        child: Icon(Icons.add),
+        onPressed: () => _showCourseDialog(),
+        child: const Icon(Icons.add),
+        backgroundColor: Colors.blueAccent,
       ),
     );
-  }
-
-  // 🔹 تعديل مهمة
-  void _modifyTaskDialog(Task task) {
-    TextEditingController nameController =
-        TextEditingController(text: task.name);
-    TextEditingController descController =
-        TextEditingController(text: task.description);
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("تعديل المهمة"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(labelText: "اسم المهمة")),
-              TextField(
-                  controller: descController,
-                  decoration: InputDecoration(labelText: "الوصف")),
-            ],
-          ),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(context), child: Text("إلغاء")),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  course.modifyTask(task.id, nameController.text,
-                      descController.text, task.dueDate);
-                });
-                Navigator.pop(context);
-              },
-              child: Text("تعديل"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // 🔹 تعديل تذكير
-  void _modifyReminderDialog(Reminder reminder) {
-    TextEditingController titleController =
-        TextEditingController(text: reminder.title);
-    TextEditingController messageController =
-        TextEditingController(text: reminder.message);
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("تعديل التذكير"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                  controller: titleController,
-                  decoration: InputDecoration(labelText: "العنوان")),
-              TextField(
-                  controller: messageController,
-                  decoration: InputDecoration(labelText: "الرسالة")),
-            ],
-          ),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(context), child: Text("إلغاء")),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  course.modifyReminder(reminder.id, titleController.text,
-                      reminder.reminderTime, messageController.text);
-                });
-                Navigator.pop(context);
-              },
-              child: Text("تعديل"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // 🔹 عنصر عنوان القسم
-  Widget _buildSectionTitle(String title) {
-    return Text(title,
-        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold));
-  }
-
-  // 🔹 عنصر تفصيلي
-  Widget _buildDetail(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Text("$label: $value"),
-    );
-  }
-
-  // 🔹 قائمة عرض ديناميكية
-  Widget _buildListView<T>(List<T> items, Widget Function(T) itemBuilder) {
-    return Column(children: items.map(itemBuilder).toList());
   }
 }

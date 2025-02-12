@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart'; // استيراد صفحة الرئيسية
-import 'signup_screen.dart'; // استيراد صفحة التسجيل
-import 'package:fateen/models/student.dart'; // استيراد كلاس الطالب
+import 'home_screen.dart'; // ✅ استيراد صفحة الرئيسية
+import 'signup_screen.dart'; // ✅ استيراد صفحة التسجيل
+import 'package:fateen/models/student.dart'; // ✅ استيراد كلاس الطالب
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,11 +15,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
 
   void loginUser() {
-    // التحقق من البريد الإلكتروني وكلمة المرور
+    // ✅ التحقق من البريد الإلكتروني وكلمة المرور
     final email = emailController.text;
     final password = passwordController.text;
 
-    // البحث عن المستخدم في قائمة المستخدمين
+    // ✅ البحث عن المستخدم في قائمة المستخدمين
     final matchedUser = usersList.firstWhere(
       (user) =>
           user.email == email && user.password == password, // مطابقة البيانات
@@ -27,15 +27,15 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (matchedUser.email != null) {
-      // إذا تم العثور على المستخدم، الانتقال إلى الصفحة الرئيسية
-      Navigator.push(
+      // ✅ إذا تم العثور على المستخدم، الانتقال إلى الصفحة الرئيسية مع استبدال الصفحة الحالية
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => HomeScreen(userName: matchedUser.name ?? ''),
         ),
       );
     } else {
-      // إذا لم يتم العثور على المستخدم، عرض رسالة خطأ
+      // ✅ إذا لم يتم العثور على المستخدم، عرض رسالة خطأ
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('البريد الإلكتروني أو كلمة المرور غير صحيحة'),
@@ -56,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 100),
-              // عنوان تسجيل الدخول
+              // ✅ عنوان تسجيل الدخول
               const Center(
                 child: Text(
                   'تسجيل الدخول',
@@ -78,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 40),
 
-              // حقل البريد الإلكتروني
+              // ✅ حقل البريد الإلكتروني
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -103,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
 
-              // حقل كلمة المرور
+              // ✅ حقل كلمة المرور
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -129,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 30),
 
-              // زر تسجيل الدخول
+              // ✅ زر تسجيل الدخول
               GestureDetector(
                 onTap: loginUser,
                 child: Container(
@@ -159,7 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
 
-              // نص تسجيل حساب جديد
+              // ✅ نص تسجيل حساب جديد
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -169,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      // الانتقال إلى صفحة التسجيل
+                      // ✅ الانتقال إلى صفحة التسجيل
                       Navigator.push(
                         context,
                         MaterialPageRoute(

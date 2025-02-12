@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
+import 'login_screen.dart'; // ✅ استيراد شاشة تسجيل الدخول
 
 class HomeScreen extends StatelessWidget {
   final String userName;
 
   const HomeScreen({super.key, required this.userName});
+
+  // ✅ وظيفة تسجيل الخروج التي تعيد المستخدم إلى شاشة تسجيل الدخول
+  void logout(BuildContext context) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -11,6 +20,12 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('الصفحة الرئيسية'),
         backgroundColor: Colors.blue,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => logout(context), // ✅ زر تسجيل الخروج
+          ),
+        ],
       ),
       body: Center(
         child: Column(
@@ -25,10 +40,7 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                // الرجوع إلى صفحة تسجيل الدخول
-                Navigator.pop(context);
-              },
+              onPressed: () => logout(context), // ✅ زر تسجيل الخروج
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 padding:

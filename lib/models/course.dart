@@ -2,23 +2,17 @@ import 'task.dart';
 import 'reminder.dart';
 
 class Course {
-  // الخصائص الأساسية للكورس
-  final String id;
-  final String courseName;
-  final int creditHours;
-  final DateTime lectureTime;
-  final String classroom;
+  // الخصائص
+  String id;
+  String courseName;
+  int creditHours;
+  DateTime lectureTime;
+  String classroom;
+  Map<String, double> grades;
+  List<Task> tasks;
+  List<Reminder> reminders;
 
-  // قائمة الطلاب المسجلين في الكورس (اسم الطالب → الدرجة)
-  final Map<String, double> grades;
-
-  // قائمة المهام المرتبطة بالكورس
-  final List<Task> tasks;
-
-  // قائمة التذكيرات المرتبطة بالكورس
-  final List<Reminder> reminders;
-
-  // المُنشئ (Constructor)
+  // **المُنشئ**
   Course({
     required this.id,
     required this.courseName,
@@ -32,129 +26,101 @@ class Course {
         tasks = tasks ?? [],
         reminders = reminders ?? [];
 
-  // 🟢 إنشاء كورس جديد
+  // **الدوال الأساسية**
   void createCourse() {
-    print("تم إنشاء الكورس: $courseName");
+    print("📚 تم إنشاء الكورس: $courseName");
   }
 
-  // 🟢 حذف الكورس
   void deleteCourse() {
-    print("تم حذف الكورس: $courseName");
+    print("🗑 تم حذف الكورس: $courseName");
   }
 
-  // 🟢 تعديل تفاصيل الكورس
-  void modifyCourseDetails(
-      String newName, int newCreditHours, String newClassroom) {
-    print("تم تعديل بيانات الكورس");
-    // لا يمكن تعديل القيم لأن الخصائص `final`
+  void modifyCourseDetails(String name, int hours, DateTime time, String room) {
+    courseName = name;
+    creditHours = hours;
+    lectureTime = time;
+    classroom = room;
+    print("✏ تم تعديل تفاصيل الكورس: $courseName");
   }
 
-  // 🟢 عرض تفاصيل الكورس
   void viewCourseDetails() {
-    print("""
-    📘 تفاصيل الكورس:
-    - ID: $id
-    - الاسم: $courseName
-    - عدد الساعات: $creditHours
-    - وقت المحاضرة: $lectureTime
-    - القاعة: $classroom
-    """);
+    print("🔹 تفاصيل الكورس:");
+    print("📌 الاسم: $courseName");
+    print("📚 عدد الساعات: $creditHours");
+    print("⏰ وقت المحاضرة: $lectureTime");
+    print("🏫 القاعة: $classroom");
   }
 
-  // 🟢 جلب جميع الكورسات (ممكن يكون جزء من كود آخر)
-  void getCurrentCourses() {
-    print("عرض جميع الكورسات...");
-  }
-
-  // 🟢 إنشاء مهمة جديدة
   void createTask(Task task) {
     tasks.add(task);
-    print("تمت إضافة المهمة: ${task.name}");
+    print("✅ تمت إضافة المهمة '${task.name}' إلى الكورس '$courseName'");
   }
 
-  // 🟢 عرض مهمة محددة
-  void viewTask(String taskId) {
-    Task? task = tasks.firstWhere((t) => t.id == taskId,
-        orElse: () =>
-            Task(id: '', name: '', description: '', dueDate: DateTime.now()));
-    if (task.id.isNotEmpty) {
-      print("📌 المهمة: ${task.name} - ${task.description}");
-    } else {
-      print("❌ المهمة غير موجودة.");
+  void viewTasks() {
+    print("📌 المهام الخاصة بالكورس '$courseName':");
+    for (var task in tasks) {
+      print("- ${task.name} (🔹 الحالة: ${task.status})");
     }
   }
 
-  // 🟢 تعديل مهمة
-  void modifyTask(String taskId, String newName, String newDescription,
-      DateTime newDueDate) {
+  void modifyTask(String taskId, String newName) {
     for (var task in tasks) {
       if (task.id == taskId) {
         task.name = newName;
-        task.description = newDescription;
-        task.dueDate = newDueDate;
-        print("تم تعديل المهمة: $newName");
+        print("✏ تم تعديل اسم المهمة إلى '$newName'");
         return;
       }
     }
-    print("❌ المهمة غير موجودة.");
+    print("⚠ لم يتم العثور على المهمة!");
   }
 
-  // 🟢 إنشاء درجة لطالب
-  void createGrade(String studentName, double grade) {
-    grades[studentName] = grade;
-    print("تمت إضافة درجة للطالب: $studentName - $grade");
+  void createGrade(String assignment, double grade) {
+    grades[assignment] = grade;
+    print(
+        "📊 تمت إضافة درجة '$grade' لـ '$assignment' في الكورس '$courseName'");
   }
 
-  // 🟢 تعديل درجة طالب
-  void modifyGrade(String studentName, double newGrade) {
-    if (grades.containsKey(studentName)) {
-      grades[studentName] = newGrade;
-      print("تم تعديل درجة الطالب: $studentName - $newGrade");
+  void modifyGrade(String assignment, double newGrade) {
+    if (grades.containsKey(assignment)) {
+      grades[assignment] = newGrade;
+      print("✏ تم تعديل درجة '$assignment' إلى '$newGrade'");
     } else {
-      print("❌ الطالب غير موجود.");
+      print("⚠ لم يتم العثور على التقييم '$assignment'");
     }
   }
 
-  // 🟢 عرض جميع الدرجات
   void viewGrades() {
-    print("📊 درجات الطلاب:");
-    grades.forEach((name, grade) {
-      print("$name: $grade");
+    print("📊 درجات الكورس '$courseName':");
+    grades.forEach((assignment, grade) {
+      print("- $assignment: $grade");
     });
   }
 
-  // 🟢 إنشاء تذكير جديد للمحاضرة
   void createLectureReminder(Reminder reminder) {
     reminders.add(reminder);
-    print("📅 تمت إضافة تذكير للمحاضرة: ${reminder.title}");
+    print("📅 تم تعيين تذكير لمحاضرة '$courseName'");
   }
 
-  // 🟢 تعديل تذكير
-  void modifyReminder(
-      String reminderId, String newTitle, DateTime newTime, String newMessage) {
+  void modifyReminder(String reminderId, String newMessage) {
     for (var reminder in reminders) {
       if (reminder.id == reminderId) {
-        reminder.title = newTitle;
-        reminder.reminderTime = newTime;
         reminder.message = newMessage;
-        print("تم تعديل التذكير: $newTitle");
+        print("🔔 تم تعديل التذكير إلى: '$newMessage'");
         return;
       }
     }
-    print("❌ التذكير غير موجود.");
+    print("⚠ لم يتم العثور على التذكير!");
   }
 
-  // 🟢 عرض جميع التذكيرات
   void viewReminders() {
-    print("🔔 جميع التذكيرات:");
-    reminders.forEach((reminder) {
-      print("${reminder.title} - ${reminder.reminderTime}");
-    });
+    print("📝 التذكيرات الخاصة بالكورس '$courseName':");
+    for (var reminder in reminders) {
+      print("- ${reminder.message} (📆 في: ${reminder.reminderTime})");
+    }
   }
 
-  // 🟢 حذف تذكير
   void deleteReminder(String reminderId) {
     reminders.removeWhere((reminder) => reminder.id == reminderId);
-    print("🗑️ تم حذف التذكير.");
+    print("🗑 تم حذف التذكير بنجاح!");
   }
 }
